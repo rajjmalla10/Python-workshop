@@ -1,0 +1,25 @@
+Requirements:
+You will develop a program to calculate compound interest.
+1. Print a welcome message explaining the purpose of the program.
+2. Prompt the user for the necessary inputs (see formulae and brief)
+3. Convert input values to suitable data types.
+4. Perform the compound interest calculation.
+5. Print the result to the terminal using appropriate formatting.
+
+Constraints:
+● Ensure that the interest rate is entered as a percentage and not a decimal.
+● Ensure that all monetary values are formatted to two decimal places.
+
+Hints:
+● Think about what data types are the most appropriate for each input value.
+● The order of operations is important, make sure you use parentheses.
+● Review lecture two for more information on string formatting.
+● Your program's output should be as close as possible to the example below.
+
+Example Implementation (user input in red)
+Welcome to the Wolving compound interest calculator.
+This program calculates your potential returns when you invest with us
+How much would you like to invest? 1500
+What is the interest rate on your account? 4.3
+How long are you planning to invest (in years)? 6
+£1500 invested at 4.3% for 6 years compounded 4 times per year is: £1938.84
