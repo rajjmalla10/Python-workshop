@@ -54,16 +54,78 @@ def encode(message):
 def decode(message):
     decode_message = []
     morse_code_dict = {}
+    
+    
     for code, word in MORSE_CODE:
         morse_code_dict[code] = word
     
-    for morse_code_sublist in message:
-        for morse_code in morse_code_sublist:
+    
+    if isinstance(message[0],list):
+        for morse_code_sublist in message:
+            word = ''
+            for morse_code in morse_code_sublist:
+                if morse_code in morse_code_dict:
+                    word += morse_code_dict[morse_code]
+                    
+                else:
+                    if word:
+                        decode_message.append(word)
+                        word = ''
+                   
+                        
+            if word:
+                decode_message.append(word)  
+        
+        result =  ' '.join(decode_message) 
+        write_lines(result)
+        return result
+                    
+                
+    else:
+        word = ''
+        for morse_code in message:
             if morse_code in morse_code_dict:
-                decode_message.append(morse_code_dict[morse_code])
+                word += morse_code_dict[morse_code] 
+            
+            elif word: 
+                    decode_message.append(word)
+                    word = ''
+
             else:
-                decode_message.append(" ")
-    return " ".join(decode_message)            
+                if morse_code == " ":
+                    decode_message.append(" ")
+            
+        if word:
+            decode_message.append(word)        
+    return ' '.join(decode_message)        
+                
+                                    
+            
+            
+    # for morse_code in message:
+    #     new_morse_code = morse_code.strip().split()
+    #     hash_morse_code += (new_morse_code,)    
+        
+    #     if hash_morse_code in morse_code_dict:
+    #         decode_message.append(morse_code_dict[hash_morse_code])
+    #     else:
+    #         decode_message.append(" ")
+    #     return " ".join(decode_message)            
+        
+    
+    
+        # if hash_morse_code in morse_code_dict:
+        #     decode_message.append(morse_code_dict[morse_code])
+        # else:
+        #     decode_message.append(" ")
+        # return " ".join(decode_message)
+            
+        
+    #     if morse_code in morse_code_dict:
+    #         decode_message.append(morse_code_dict[morse_code])
+    #     else:
+    #         decode_message.append(" ")
+    # return " ".join(decode_message)            
                 
     
 
@@ -72,34 +134,32 @@ def decode(message):
 
 def process_lines(filename, mode):
     check_file = check_file_exists(filename)
-    print(check_file)
     new_list = []
-    if check_file is True:
+    if check_file:
           
         with open(filename,mode) as f:
             for line in f:
                 parts = line.strip().split( '/' )
                 for part in parts:
-                    new_list.append(part.strip())
-    print(new_list)
-            # result = decode(new_list)
-            # print(result)
-                  
+                    new_parts = part.split()
+                    new_list.append(new_parts)
+            result = decode(new_list)
+            return result
+    
+    return ""    
                 
-                
-                
-                
-                
-        
-        
-        
-        
-    pass
+    
 
 
 def write_lines(lines):
-    pass
-
+    file_path = "morse_output.txt"
+    if os.path.exists(file_path):
+        with open(file_path, 'a+') as f:
+            f.write(lines)
+            print(f"Content Written: {lines}")
+    else:
+        print(f'File exist but is not empty, {file_path}')
+                
 
 def check_file_exists(filename): 
     check_file = os.path.isfile(filename)
@@ -125,7 +185,7 @@ def get_file_input():
         filename = input("Enter the file name example: morse_code.txt: ").strip()
         mode = 'r'
         result = process_lines(filename,mode)
-        print(result)
+        return result
         
     if file_or_console == 'c':
         return file_input
@@ -173,15 +233,15 @@ def main():
     while True:
         print_intro()
         user_choice = get_file_input()
-        # if user_choice == 'e':
-        #     message = input("What would you like to encode: ")
-        #     result = encode(message) 
-        # elif user_choice=='d':
-        #     Morse__code  = input("what message would you like to decode: ")
-        #     message = Morse__code.split(" ")
-        #     result = decode(message)
+        if user_choice == 'e':
+            message = input("What would you like to encode: ")
+            result = encode(message) 
+        elif user_choice=='d':
+            Morse__code  = input("what message would you like to decode: ")
+            message = Morse__code.split(" ")
+            result = decode(message)
     
-        # print(result)
+        print(result)
         
         
         again = input("Would you like to encode/decode another message? (y/n): ").lower()
