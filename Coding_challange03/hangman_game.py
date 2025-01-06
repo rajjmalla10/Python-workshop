@@ -8,7 +8,10 @@
 import random
 import string
 
+from string import ascii_lowercase
+
 WORDLIST_FILENAME = "words.txt"
+
 
 # Responses to in-game events
 # Use the format function to fill in the spaces
@@ -36,7 +39,19 @@ def choose_random_word(all_words):
     Returns:
         a word from the wordlist at random
     """
-    return random.choice(all_words)
+    try: 
+        
+        return random.choice(all_words)  
+    except ValueError:
+        print("No words were found in the word list. The fuke us empty")
+    except Exception as e:
+        print(f"An unexpected error occured{e}")    
+     
+            
+            
+                    
+            
+    
 
 
 # end of helper code
@@ -50,18 +65,27 @@ def load_words():
     Returns:
         A list of valid words.
     """
+    
+    wordlist = []
     # TODO: Fill in your code here
     count = 0
+    
     try:
         with open(WORDLIST_FILENAME,'r') as f:
-            print("Loading Word List from file: words.txt")
-            for words in f:
-                count += len(words.strip())       
-        return count         
+            print("\nLoading Word List from file: words.txt")
+            for line in f:
+                words = line.strip().split()
+                wordlist.extend(words) 
+                count += len(words)       
+        print(f'{count} words loaded') 
+        return wordlist
+           
+             
                    
                 
     except FileNotFoundError:
         print("File not found!")
+        return []
                     
 
 
@@ -87,7 +111,7 @@ def is_word_guessed(word, letters_guessed):
     # TODO: Fill in your the code here
     letter_guessed = set(letters_guessed)
     words = set(word)
-    if words.issubset(letter_guessed):
+    if letter_guessed == word:
         return True
     else:
         return False
@@ -120,7 +144,13 @@ def get_guessed_word(word, letters_guessed):
     
 
 
-def get_remaining_letters(letters_guessed):
+def get_remaining_letters(letters_guessed=None):
+    
+    if letters_guessed is None:
+        letters_guessed= []
+    
+    remaning_char = ''.join(sorted(set(ascii_lowercase) - set(letters_guessed)))
+    return remaning_char
     
 #     Step 2 – Identifying Unused Letters:
 # Implementation Details:
@@ -131,18 +161,13 @@ def get_remaining_letters(letters_guessed):
 # letters that remain and return them as a string.
 # Hint: You may find the string.ascii_lowercase variable useful, which generates a list
 # of alphabetical letters in lowercase. The string library has been imported for you.
- new_list_asciii = []
- from string import ascii_lowercase
- new_words = set(letters_guessed)
- for letters in ascii_lowercase:
-     if letters not in new_words:
-         new_list_asciii.append(letters)
- return new_list_asciii        
+
+ 
+ 
+ 
+ 
+    
               
-         
-     
- 
- 
  
 # abcdefghijklmnopqrstuvwxyz # All lowercase letters
 
@@ -167,6 +192,9 @@ def get_remaining_letters(letters_guessed):
 pass
 
 def hangman(word):
+    guess = 6
+    letters_guessed = []
+    
     """
     Runs an interactive game of Hangman.
 
@@ -174,9 +202,118 @@ def hangman(word):
         word: string, the word to guess.
     """
     print("Welcome to Hangman Ultimate Edition")
-    print("I am thinking of a word that is {0} letters long".format(len(word)))
+    print(f"I am thinking of a word that is {len(word)} letters long")
     print("-------------")
     # TODO: Fill in your code here
+    letter_guessed = ''
+    
+    try: 
+        while guess > 0:
+            print(f"\nYou have {guess} guesses left. ")
+            print(f"Avilable letters:{get_remaining_letters(letter_guessed)}")
+            letter_guessed = input("Please guess a letter: ")
+            
+            while len(letter_guessed) > 1 or not letter_guessed.isalpha():
+                guess -= 1
+                letter_guessed = input("Please enter a valid Guess only a letter, Try again: ")
+                
+                if guess < 1:
+                    print(f"Sorry!!,You have {guess} guesses left.")
+                    break
+            
+            if letter_guessed in letters_guessed:
+                guess -= 1
+                print(f"Oops! You've already guessed that letter: {letter_guessed}")
+                continue
+            letters_guessed.append(letter_guessed)
+                 
+            
+            
+            
+            
+            
+                
+            if letter_guessed in word:
+                result = get_guessed_word(word, letters_guessed)
+                print(f'Good Guess: {result}')
+                print("-------------")   
+            else:
+                guess -= 1
+                continue
+            
+            
+            if is_word_guessed(word, letters_guessed):
+                print("Congratulations, you won!")
+                print(f"Your total score for this game is {guess * 2}")
+                print("-------------") 
+                break
+        
+        else:
+            print("-------------") 
+            print(f'Sorry, you ran out of guesses. The word was: {word}')
+                
+            
+            
+            
+    except Exception as e:
+        print(f"Invalid Logic!!, {e}")                
+            
+            
+            
+                
+                
+                
+                
+                         
+                
+    
+    
+    
+    # try:
+    #     while guess > 0:
+    #         print(f"\nYou have {guess} guess left. ")
+    #         print(f"Avilable Letters:{get_remaining_letters(letter_guessed)}")
+    #         letter_guessed = input("Please guess a letter: ").lower()
+    #         while len(letter_guessed) > 1 or not letter_guessed.isalpha() :
+    #             guess -= 1
+    #             print(f"You have only {guess} guess left")
+                
+        
+    #             if guess == 0:
+    #                 print(f"Sorry, you ran out of guesses. The word was: {word}")
+    #                 break
+                
+    #             letter_guessed = input("Please Enter only one letter, guess a letter: ").lower() 
+            
+
+    # except Exception as e:
+    #         print(f"Invalid Conditoning!!,{e}")
+            
+            
+            
+    #         word_guessed = is_word_guessed(word, letter_guessed)
+    #         while word_guessed:
+    #             remaning_ascii = get_remaining_letters(letter_guessed)
+    #             print(f"Avilable Letters: {remaning_ascii}")
+            
+            
+            
+            
+            
+            
+            
+            
+            
+            
+    
+
+                
+                   
+               
+            
+                
+    
+    
 
 
 # When you've completed your hangman function, scroll down to the bottom
@@ -188,21 +325,28 @@ def hangman(word):
 # -----------------------------------
 
 # Driver function for the program
+# 
 if __name__ == "__main__":
-    result = load_words()
-    print(result)
-    letter_guessed = ['m','a','l','l','u','a']
-    letterss = get_remaining_letters(letter_guessed)
-    print(letterss)
     
-    guessed_word = is_word_guessed('malla',letter_guessed)
-    print(guessed_word)
+   
+    # result = load_words()
+    # print(result)
+    # letter_guessed = ['m','a','l','l','u','a']
+    # letterss = get_remaining_letters(letter_guessed)
+    # print(letterss)
     
-    get_guessed = get_guessed_word('majla', letter_guessed)
-    print(get_guessed)
+    # guessed_word = is_word_guessed('malla',letter_guessed)
+    # print(guessed_word)
+    
+    # get_guessed = get_guessed_word('majla', letter_guessed)
+    # print(get_guessed)
     # Uncomment the line below once you have finished testing.
-    # word = choose_random_word(wordlist)
+    
+    wordlist = load_words()
+    word = choose_random_word(wordlist)
+    
 
     # Uncomment the line below once you have implemented the hangman function.
-    # hangman(word)
+    hangman(word)
+    
     pass
