@@ -7,11 +7,21 @@
 # (so be sure to read the docstrings!)
 import random
 import string
+import sys
+
+
+class Player_info:
+    
+    def __init__(self,name,score):
+        self.name = name 
+        self.score = score
+        pass
+
 
 from string import ascii_lowercase
 
 WORDLIST_FILENAME = "words.txt"
-
+file_name = "words.txt"
 
 # Responses to in-game events
 # Use the format function to fill in the spaces
@@ -164,8 +174,36 @@ def get_remaining_letters(letters_guessed=None):
 
  
  
- 
- 
+def get_score(player_info):
+    
+    
+    
+    pass
+
+
+
+def save_score(name,score):
+    i = 0
+    headings = ['SN','Name','Score']
+    
+    with open(file_name, 'r') as f:
+        line = f.read.lines()
+        
+    file_empty = len(line) == 0
+    
+    with open(file_name,'a') as file:
+        
+        if file_empty == True:
+            f.write(f"{headings[0]:<10} {headings[1]:<10} {headings[2]:<10}")
+            f.write(f"{'-'*30}")
+        
+    for l in open(file_name):
+             
+    
+         
+    
+    
+    
     
               
  
@@ -202,17 +240,51 @@ def hangman(word):
         word: string, the word to guess.
     """
     print("Welcome to Hangman Ultimate Edition")
+    try:
+        while True:
+            
+            try:
+                view_quit = input("Do you want to Play (p) view the leaderboard (l) or quit (q): ").lower()
+                while view_quit not in {'p','l','q'}:
+                    view_quit = input("invalid Input!!, Please enter to Play (p) view the leaderboard (l) or quit (q): ").lower()
+                    
+                if view_quit == 'l':
+                    
+                    pass
+                
+                elif view_quit == 'p':
+                    name = input("What is your name: ").strip().title()
+                    break
+                
+                elif view_quit == 'q':
+                    print("Thank you for playing! Goodbye!")
+                    sys.exit(0)
+            except Exception as e:
+                print("Error While loading the menu!: {e}. Please try again")     
+    except KeyboardInterrupt:
+        print("\nProgram interuptted. Existing gracefully")
+        
+    except Exception as e:
+        print("Ab unexpected error occured. Please find customer support")
+    finally:
+        print("Program has ended")    
+        
+                        
+        
     print(f"I am thinking of a word that is {len(word)} letters long")
     print("-------------")
     # TODO: Fill in your code here
     letter_guessed = ''
+    
+    
+            
+    
     
     try: 
         while guess > 0:
             print(f"\nYou have {guess} guesses left. ")
             print(f"Avilable letters:{get_remaining_letters(letter_guessed)}")
             letter_guessed = input("Please guess a letter: ")
-            
             while len(letter_guessed) > 1 or not letter_guessed.isalpha():
                 guess -= 1
                 letter_guessed = input("Please enter a valid Guess only a letter, Try again: ")
@@ -227,11 +299,7 @@ def hangman(word):
                 continue
             letters_guessed.append(letter_guessed)
                  
-            
-            
-            
-            
-            
+
                 
             if letter_guessed in word:
                 result = get_guessed_word(word, letters_guessed)
@@ -243,8 +311,10 @@ def hangman(word):
             
             
             if is_word_guessed(word, letters_guessed):
+                score = guess * 2
                 print("Congratulations, you won!")
-                print(f"Your total score for this game is {guess * 2}")
+                print(f"Your total score for this game is {score}")
+                save_score(name,score)
                 print("-------------") 
                 break
         
@@ -260,13 +330,7 @@ def hangman(word):
             
             
             
-                
-                
-                
-                
-                         
-                
-    
+
     
     
     # try:
@@ -296,25 +360,6 @@ def hangman(word):
     #             remaning_ascii = get_remaining_letters(letter_guessed)
     #             print(f"Avilable Letters: {remaning_ascii}")
             
-            
-            
-            
-            
-            
-            
-            
-            
-            
-    
-
-                
-                   
-               
-            
-                
-    
-    
-
 
 # When you've completed your hangman function, scroll down to the bottom
 # of the file and uncomment the last lines to test
