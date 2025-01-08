@@ -5,6 +5,7 @@
 # You don't need to understand this helper code,
 # but you will have to know how to use the functions
 # (so be sure to read the docstrings!)
+import os
 import random
 import string
 import sys
@@ -176,8 +177,14 @@ def get_remaining_letters(letters_guessed=None):
  
 def get_score(player_info):
     
+    if os.path.isfile(file_name):
+        with open(file_name, 'r') as f:
+            table = f.readlines()
+            
+        info_table = table.strip().striplines()[2:]
     
-    
+    name_to_find = player_info
+            
     pass
 
 
@@ -185,26 +192,51 @@ def get_score(player_info):
 def save_score(name,score):
     i = 0
     headings = ['SN','Name','Score']
+    next_line = 1
     
-    with open(file_name, 'r') as f:
-        line = f.read.lines()
-        
-    file_empty = len(line) == 0
     
-    with open(file_name,'a') as file:
+    try:
+        with open(file_name, 'r') as f:
+            line = f.readlines()
+    except FileNotFoundError:
+        print('File does not exist!')
+        line = []
+    
+    file_emmpty = len(line) == 0
+    
+    if not file_emmpty:
+        lines = line[-1].strip()
         
-        if file_empty == True:
-            f.write(f"{headings[0]:<10} {headings[1]:<10} {headings[2]:<10}")
-            f.write(f"{'-'*30}")
+        if lines:
+            next_line = int(lines[0]) + 1 #if last line exist, then add it by 1 so we can use it for SN later
+    
+    
+    with open(file_name, 'a') as file:
+        if file_emmpty:
+            f.write(f'{headings[0]:<10}{headings[1]:<10} {headings[2]:<10} ')
+            f.write(f"{'_'*35}")
+    
+        f.write(f'{next_line:<10} {name:<10} {score:<10}') 
+    
+    print(f'Sucesfully added: {name} and {score}')
+    
+     
+    
+    # with open(file_name, 'r') as f:
+    #     line = f.read.lines()
         
-    for l in open(file_name):
+    # file_empty = len(line) == 0
+    
+    # with open(file_name,'a') as file:
+        
+    #     if file_empty:
+    #         f.write(f"{headings[0]:<10} {headings[1]:<10} {headings[2]:<10}")
+    #         f.write(f"{'-'*30}")
+    
+    # for index, _ in enumerate(open(file_name)):
+    #     if index >= 1:
+    #         f.write(f"{index+1} {name} {score}")
              
-    
-         
-    
-    
-    
-    
               
  
 # abcdefghijklmnopqrstuvwxyz # All lowercase letters
