@@ -118,14 +118,8 @@ class DoublyLinkedlist():
             
         raise Exception("Invaid Index")    
             
-            
-            
-                        
-            
-        
-        
     
-    
+
     def length_of_dblinkedlist(self):
         if self.head is None:
             raise Exception("No Node currently!!")
