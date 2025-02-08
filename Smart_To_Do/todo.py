@@ -73,7 +73,7 @@ class TOdoHandler(BaseHTTPRequestHandler):
     
     def do_POST(self):
         print("Post revieved request at:", self.path)
-        if self.path == "/tasks":
+        if self.path == "/tasks/create":
             content_length = int(self.headers['Content-Length']) # Get the length of the data
             post_data = self.rfile.read(content_length) #read contact length in bytes from the request boody 
         
@@ -113,6 +113,60 @@ class TOdoHandler(BaseHTTPRequestHandler):
                 self.send_error(500,f"server error: {str(e)}")        
     
     def do_GET(self):
+        path_parts = self.path.strip("/").split("/")
+        
+        if len(path_parts) == 1 and path_parts[0]== "tasks":
+            tasks = self.load_Task()
+            
+            self.send_response(200)
+            self.send_header('Content-Type', 'application/json')
+            self.end_headers()
+            
+            response = json.dumps(tasks)
+            self.wfile.write(response.encode('utf-8'))
+            
+        elif len(path_parts)==2 and path_parts[0] == "tasks":
+            task_id = path_parts[1]
+            
+            
+            if task_id.isdigit():
+                task_id = int(task_id)
+                datas = self.load_Task()
+                
+                if isinstance(datas,list):
+                    
+                
+                
+                    found_task = None    
+                    for task in datas:
+                        if task['id'] == task_id:
+                            found_task = task
+                            break
+                    
+                    if found_task:
+                        self.send_response(200)
+                        self.send_header('Content-Type','application/json')
+                        self.end_headers()
+                        
+                        response = json.dumps(found_task).encode()            
+                        self.wfile.write(response)     
+                    else:
+                        self.send_error(404,'Task Not Found')
+                
+                else:
+                    self.send_error(500)
+                    self.end_headers()
+                    self.wfile.write(b"Internal Server Error: Invalid data format")        
+            else:
+                self.send_response(400)    
+                self.end_headers()
+                self.wfile.write(b"Invalid Task Id") 
+                                  
+                
+                
+                
+        # else:
+        #     self.send_error(404, "Endpoint not found!!")    
         pass            
                 
                 

@@ -11,7 +11,7 @@ import requests
 def create_task(title,description):
     task_data = {"title": title , "description": description}
         
-    send_data = requests.post("http://localhost:8080/tasks",json= task_data)
+    send_data = requests.post("http://localhost:8080/tasks/create",json= task_data)
         
     if send_data.status_code == 201:
         print("Task Created Sucesfully!!")
@@ -21,6 +21,26 @@ def create_task(title,description):
             
         
     print("\nServer Response: ",send_data.json())
+    
+def get_tasks():
+    get_data = requests.get('http://localhost:8080/tasks')
+    if get_data.status_code == 200:
+        tasks = get_data.json()
+        if tasks:
+            for task in tasks:
+                print(f"ID: {task['id']}, Task: {task['title']}, Description: {task['description']}")
+            
+        
+def get_taskID(id):
+    task_id = id
+    get_data = requests.get(f'http://localhost:8080/tasks/{task_id}')
+    if get_data.status_code == 200:
+        tasks = get_data.json()
+        if tasks:
+            print(f"ID: {tasks['id']}, Title: {tasks['title']}, Description: {tasks['description']}")
+            
+        
+        
     
 
 
@@ -40,6 +60,13 @@ def main():
         description = input("Enter Description for your task: ")
         
         create_task(title,description)
+        
+    if Choice == '2':
+        get_tasks()    
+        
+    if Choice == "3":
+        get_id = int(input("Enter the ID of the task you want to retrieve: ex: 1,2,3 ..."))
+        get_taskID(get_id)    
         
         
         

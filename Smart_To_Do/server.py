@@ -4,10 +4,6 @@ import logging
 from Smart_To_Do import todo
 
 
-
-
-
-
 class MainApp:
     def __init__(self):
         #initialize components 
