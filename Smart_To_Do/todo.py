@@ -1,13 +1,16 @@
+
 from http.server import BaseHTTPRequestHandler
 import json
 import os
-
+import tempfile
 
 
 TASKS_FILE = 'tasks.json'
 
 class TOdoHandler(BaseHTTPRequestHandler):
     
+    
+
     tasks = []
     
     def load_Task(self):
@@ -36,20 +39,40 @@ class TOdoHandler(BaseHTTPRequestHandler):
         existing_file = self.load_Task()
         print(f'Existing Tasks: {existing_file}')
         
-        
-        
+
         existing_file.append(new_task)
         print(f'Updated tasks:{existing_file}')
            
+        try:
+            with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(TASKS_FILE), delete=False) as temp_file:
+                json.dump(existing_file,temp_file, indent=4)
+                temp_file_name = temp_file.name #full path of temp_file
+        except IOError as e:
+            print(f'Error writing to temporary file: {e}')
+            return False
         
-        with open(TASKS_FILE,"w") as file:
-            json.dump(existing_file,file, indent=4)
-                
-        print(f'Tasks saved to "{TASKS_FILE}"')        
+        #replace the original file now 
+        #it is atomic if it happens in single step, otherwise the original file remains unchanged
+        try:
+            os.replace(temp_file_name,TASKS_FILE)
+        except IOError as e:
+            print(f'Error replacing file : {e}')
+            return False  
         
-           
+        print(f'Task saved to "{TASKS_FILE}" ')
+        return True      
+                        
+        
+    def max_id(self):
+        tasks = self.load_Task()
+        if not tasks:
+            return 0 
+        else:
+            return max(task['id']for task in tasks)
+        
     
     def do_POST(self):
+        print("Post revieved request at:", self.path)
         if self.path == "/tasks":
             content_length = int(self.headers['Content-Length']) # Get the length of the data
             post_data = self.rfile.read(content_length) #read contact length in bytes from the request boody 
@@ -61,17 +84,18 @@ class TOdoHandler(BaseHTTPRequestHandler):
                     self.send_error(400, "Missing required fileds: 'title' and 'description'.")
                     return
                 
-                
+                new_id = self.max_id()
                 
                 
                 new_task = {
-                    "id": len(self.tasks) + 1,
+                    "id": int(new_id) + 1,
                     "title": task["title"],
                     "description":task["description"]  
                 }
                 
-                
+                print("Calling save_tast_to_file...")
                 self.save_tast_to_file(new_task)
+                print(f'\n Json file : {TASKS_FILE}')
                 
                 
                 self.tasks.append(new_task)

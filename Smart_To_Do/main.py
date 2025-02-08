@@ -8,6 +8,20 @@ import requests
 
 
 
+def create_task(title,description):
+    task_data = {"title": title , "description": description}
+        
+    send_data = requests.post("http://localhost:8080/tasks",json= task_data)
+        
+    if send_data.status_code == 201:
+        print("Task Created Sucesfully!!")
+    else:
+        print(f"Failed:{send_data.status_code}") 
+               
+            
+        
+    print("\nServer Response: ",send_data.json())
+    
 
 
 def main():
@@ -25,18 +39,7 @@ def main():
         title = input("enter the title of your Task: ")
         description = input("Enter Description for your task: ")
         
-        task_data = {"title": title , "description": description}
-        
-        send_data = requests.post("http://localhost:8080/tasks",json= task_data)
-        
-        if send_data.status_code == 201:
-            print("Task Created Sucesfully!!")
-        else:
-            print(f"Failed:{send_data.status_code}") 
-               
-            
-        
-        print("\nServer Response: ",send_data.json())
+        create_task(title,description)
         
         
         

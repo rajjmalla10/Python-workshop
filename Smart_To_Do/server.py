@@ -1,8 +1,8 @@
 from http.server import HTTPServer
 import logging
 
-from . import todo
-from todo import TOdoHandler
+from Smart_To_Do import todo
+
 
 
 
@@ -12,7 +12,7 @@ class MainApp:
     def __init__(self):
         #initialize components 
         # self.db = database()
-        self.server= HTTPServer(("localhost",8080),TOdoHandler)
+        self.server= HTTPServer(("localhost",8080),todo.TOdoHandler)
         self.logger = logging.getLogger('main')
         logging.basicConfig(level = logging.DEBUG)
     
