@@ -39,7 +39,33 @@ def get_taskID(id):
         if tasks:
             print(f"ID: {tasks['id']}, Title: {tasks['title']}, Description: {tasks['description']}")
             
+def update_task_workflow():
+    get_id = int(input("Enter the ID of the task you want to Update: ex: 1,2,3 ..."))
+    current_task = get_taskID(get_id)
+    print(f'Current Task: {current_task}')
+    
+    updated_title = input("Enter the updated title(Leave empty to keep current): "). strip()
+    updated_description = input("enter the updated description (leave empty for current): ").strip()    
+    updated_data = {}
+    if updated_title:
+        updated_data['title'] = updated_title
+    if updated_description:
+        updated_description['description'] = updated_description
         
+    if updated_data:
+        update_data(get_id,updated_data)
+    else:
+        print("No update provided ") 
+        
+def update_data(get_id,updated_data:dict):
+    id = get_id
+    response = requests.patch(f'http://localhost:8080/task/update/{id}')
+    if response.status_code == 200:
+        print("Task Updated Sucesfully!")
+    else:
+        print("Failed to update the task")    
+    pass        
+             
         
     
 
@@ -68,8 +94,10 @@ def main():
         get_id = int(input("Enter the ID of the task you want to retrieve: ex: 1,2,3 ..."))
         get_taskID(get_id)    
         
-        
-        
+    if Choice == "4":
+        update_task_workflow()
+           
+                    
     
     pass
 

@@ -70,6 +70,70 @@ class TOdoHandler(BaseHTTPRequestHandler):
         else:
             return max(task['id']for task in tasks)
         
+    def do_PATCH(self):
+        path_url = self.path.strip('/').split('/')
+        if len(path_url) == 3 and path_url[0] == 'task':
+            content_length = int(self.headers['content-length'],0)
+            if content_length == 0:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b"Empty request body")
+                return
+            
+            body = self.wfile.write(content_length)
+            
+            try:
+                update_tasks = json.loads(body)
+                
+            except json.JSONDecodeError:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write("Invalid Json")
+                return
+            
+            tasks = self.load_Task()
+            task_id = path_url[2]
+            
+            if task_id.isdigit():
+                task_id = int(task_id)
+            
+            tasks_found = None
+            
+            for task in tasks:
+                if task['id'] == task_id:
+                    tasks_found = task   #task found is data we retireve from json file of out backend       
+                    break
+            if tasks_found:    
+                for key , value in update_tasks.items():
+                    if key in tasks_found  and value is not None: #update_task is what we recieved from client -side
+                        tasks_found[key] = value
+                    
+            try:
+                with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(TASKS_FILE), delete=False) as temp_file:
+                    json.dump(tasks,temp_file,indent=4)
+                    temp_filename = temp_file.name
+                    
+                os.replace(temp_filename,TASKS_FILE) #renames the temporary file temp_filename to the original file name that is TASK_FILE
+                
+                self.send_response(200)
+                self.end_headers()
+                self.wfile.write(b"Task updated Sucesfully!!")
+                
+            except Exception as e:
+                self.send_response(500)
+                self.end_headers()
+                self.wfile.write(b"Task not found")
+                    
+                
+                
+                
+                            
+                    
+                    
+                    
+            
+                  
+        
     
     def do_POST(self):
         print("Post revieved request at:", self.path)
@@ -162,11 +226,10 @@ class TOdoHandler(BaseHTTPRequestHandler):
                 self.end_headers()
                 self.wfile.write(b"Invalid Task Id") 
                                   
-                
-                
-                
-        # else:
-        #     self.send_error(404, "Endpoint not found!!")    
+            
+            
+                   
+         
         pass            
                 
                 
