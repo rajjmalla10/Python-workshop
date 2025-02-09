@@ -65,6 +65,16 @@ def update_data(get_id,updated_data:dict):
     else:
         print("Failed to update the task")    
     pass        
+
+def delete_id(get_id):
+    id = get_id
+    response = requests.delete(f'http://localhost:8080/task/delete/{id}')
+    if response.status_code == 200:
+        print("ID deleted sucessfully!!")
+    else:
+        print("Failed to delete the ID")
+        
+            
              
         
     
@@ -76,8 +86,7 @@ def main():
     print("Press - 2 : If you want to View Existing Tasks.")
     print("Press - 3 : If you want to View Existing Task By its ID.")
     print("Press - 4 : If you want to Update Existing Task.")
-    print("Press - 5 : If you want to Delete Existing Tasks.")
-    print("Press - 6 : If you want to Delete Existing Tasks by ID.\n")
+    print("Press - 5 : If you want to Delete Existing Tasks by ID.\n")
     
     Choice = input("Enter the number: ")
 
@@ -96,6 +105,11 @@ def main():
         
     if Choice == "4":
         update_task_workflow()
+        
+    if Choice == "5":
+        get_id = int(input("Enter the ID of the tash you want to Delete (example: 1,2,3,4): "))
+        delete_id(get_id)
+           
            
                     
     

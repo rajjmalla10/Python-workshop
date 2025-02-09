@@ -68,19 +68,19 @@ class TOdoHandler(BaseHTTPRequestHandler):
         if not tasks:
             return 0 
         else:
-            return max(task['id']for task in tasks)
+            return max((task.get('id',0)for task in tasks), default=0)
         
     def do_PATCH(self):
         path_url = self.path.strip('/').split('/')
-        if len(path_url) == 3 and path_url[0] == 'task':
-            content_length = int(self.headers['content-length'],0)
+        if len(path_url) == 2 and path_url[0] == 'task':
+            content_length = int(self.headers.get('content-length',0))
             if content_length == 0:
                 self.send_response(400)
                 self.end_headers()
                 self.wfile.write(b"Empty request body")
                 return
             
-            body = self.wfile.write(content_length)
+            body = self.rfile.read(content_length).decode("utf-8")
             
             try:
                 update_tasks = json.loads(body)
@@ -92,21 +92,34 @@ class TOdoHandler(BaseHTTPRequestHandler):
                 return
             
             tasks = self.load_Task()
-            task_id = path_url[2]
+            task_id = path_url[1]
             
             if task_id.isdigit():
                 task_id = int(task_id)
+                
+            else:
+                self.send_response(400)
+                self.end_headers()
+                self.wfile.write(b"Invalid Task ID")
+                return    
             
             tasks_found = None
             
             for task in tasks:
                 if task['id'] == task_id:
-                    tasks_found = task   #task found is data we retireve from json file of out backend       
+                    tasks_found = task       
                     break
-            if tasks_found:    
-                for key , value in update_tasks.items():
-                    if key in tasks_found  and value is not None: #update_task is what we recieved from client -side
-                        tasks_found[key] = value
+            
+            if not tasks_found:
+                self.send_response(404)
+                self.send_header()
+                self.wfile.write(b"Task not found")
+                return
+                  
+                
+            for key , value in update_tasks.items():
+                if key in tasks_found  and value is not None: #update_task is what we recieved from client -side
+                    tasks_found[key] = value
                     
             try:
                 with tempfile.NamedTemporaryFile('w', dir=os.path.dirname(TASKS_FILE), delete=False) as temp_file:
@@ -125,21 +138,13 @@ class TOdoHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b"Task not found")
                     
                 
-                
-                
-                            
-                    
-                    
-                    
-            
-                  
-        
+ 
     
     def do_POST(self):
         print("Post revieved request at:", self.path)
         if self.path == "/tasks/create":
             content_length = int(self.headers['Content-Length']) # Get the length of the data
-            post_data = self.rfile.read(content_length) #read contact length in bytes from the request boody 
+            post_data = self.rfile.read(content_length).decode('utf-8') #read contact length in bytes from the request boody 
         
             try:
                 task = json.loads(post_data)
@@ -227,10 +232,62 @@ class TOdoHandler(BaseHTTPRequestHandler):
                 self.wfile.write(b"Invalid Task Id") 
                                   
             
+    def do_DELETE(self):
+        path_parts = self.path.strip("/").split("/")
+        
+        if len(path_parts) == 3 and path_parts[0] == 'tasks':
+            task_id = path_parts[-1]
             
-                   
-         
-        pass            
+            if task_id.isdigit():
+                task_id = int(task_id)
+                
+            get_task = self.load_Task()
+            
+            if get_task is None:
+                self.send_response(404)
+                self.end_headers()
+                self.wfile.write(b"Could not load the json file in do_delete method")
+                return
+            
+            if isinstance(get_task,list):
+                
+                new_task = []
+                if get_task:
+                    for task in get_task:
+                        if task['id'] != task_id:
+                            new_task.append(task)
+                    
+                            
+                            
+                elif len(new_task) == len(get_task):
+                    self.send_response(404)
+                    self.end_headers()
+                    self.wfile.write(b"Task not found")
+                    return 
+                
+                
+                try:
+                    with tempfile.NamedTemporaryFile("w", dir=os.path.dirname(TASKS_FILE), delete=False) as temp_file:
+                        json.dump(new_task, temp_file, indent=4)
+                        tempfilename = temp_file.name
+                        
+                    os.replace(tempfilename, TASKS_FILE)
+                    
+                    self.send_response(200)
+                    self.end_headers()
+                    self.wfile.write(b"Task deleted sucesfully")
+                    
+                except Exception as e:
+                    self.send_response(500)
+                    self.end_headers()
+                    self.wfile.write(f"Error deleting task: {str(e)}".encode('utf-8')) 
+        
+        else:
+            self.send_response(400)
+            self.end_headers()
+            self.wfile.write(b"Invalid Request")                                   
+                        
+               
                 
                 
                 
